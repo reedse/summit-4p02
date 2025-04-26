@@ -51,7 +51,7 @@ def create_app(test_config=None):
 
     # Configure CORS properly with credentials support
     CORS(app, 
-         resources={r"/*": {"origins": os.environ.get('REACT_PUBLIC_URL')}},
+         resources={r"/*": {"origins": ["http://localhost:3000", "https://summit-4p02.vercel.app"]}},
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])

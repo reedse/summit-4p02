@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Box, Typography, Button, Grid, Card, CardContent, Link, IconButton, Rating } from '@mui/material';
 import { AutoAwesome, Speed, DesignServices, Bolt, Facebook, Twitter, LinkedIn, Instagram } from '@mui/icons-material';
@@ -41,7 +40,7 @@ function Home() {
             <Box sx={{ flexShrink: 0, marginLeft: 'auto' }}>
               <img 
                 style={{ width: 450, height: 450 }} 
-                src="src/assests/header.png"
+                src="/assets/header.png"
                 alt="AI Copywriting"
               />
             </Box>
@@ -130,7 +129,7 @@ function Home() {
             </Box>
             <Box sx={{ flexShrink: 0, marginLeft: { md: 'auto' }, mt: { xs: 4, md: 0 } }}>
               <img 
-                src="src/assests/socialmedia.jpg"
+                src="/assets/socialmedia.jpg"
                 alt="Share Newsletter"
                 style={{ width: 250, height: 200 }}
               />
