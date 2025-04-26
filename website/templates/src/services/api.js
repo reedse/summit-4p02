@@ -17,9 +17,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Export the api instance
-export { api };
-
 // Flag to prevent multiple redirects
 let isRedirecting = false;
 
