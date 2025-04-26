@@ -11,11 +11,10 @@ console.log('API URL:', API_URL);
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
+    'Content-Type': 'application/json'
   },
-  withCredentials: true,
+  // Disable withCredentials for CORS preflight requests
+  withCredentials: false
 });
 
 // Export the api instance

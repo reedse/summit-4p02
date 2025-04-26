@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://reedse.pythonanywhere.com/api/$1" },
+    { "source": "/api/:path*", "destination": "https://reedse.pythonanywhere.com/api/:path*" },
     { "source": "/login", "destination": "https://reedse.pythonanywhere.com/login" },
     { "source": "/logout", "destination": "https://reedse.pythonanywhere.com/logout" },
     { "source": "/sign-up", "destination": "https://reedse.pythonanywhere.com/sign-up" },
@@ -10,6 +10,18 @@
     {
       "source": "/(.*)",
       "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma"
+        },
         {
           "key": "Cache-Control",
           "value": "no-cache, no-store, must-revalidate"
