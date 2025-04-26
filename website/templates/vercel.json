@@ -1,11 +1,9 @@
 {
   "rewrites": [
     { "source": "/api/(.*)", "destination": "https://reedse.pythonanywhere.com/api/$1" },
-    { "source": "/static/(.*)", "destination": "/static/$1" },
-    { "source": "/assets/(.*)", "destination": "/assets/$1" },
-    { "source": "/favicon.ico", "destination": "/favicon.ico" },
-    { "source": "/manifest.json", "destination": "/manifest.json" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/login", "destination": "https://reedse.pythonanywhere.com/login" },
+    { "source": "/logout", "destination": "https://reedse.pythonanywhere.com/logout" },
+    { "source": "/sign-up", "destination": "https://reedse.pythonanywhere.com/sign-up" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
