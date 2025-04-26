@@ -1,10 +1,22 @@
 import axios from 'axios';
 
-// Base URL of the Flask server (ensure it matches your backend's running address)
-const API_URL = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
+// Base URL - leave empty for relative paths when deployed to Vercel (using their rewrites)
+// The empty string will work with Vercel's rewrites that forward /api/* to your backend
+let API_URL = '';
 
-// Add a console log to show the API URL
-console.log('API URL:', API_URL);
+// For local development, use the full URL
+// This is a simplified check - in a real app, use more robust environment detection
+const isLocalDevelopment = typeof window !== 'undefined' && 
+                          (window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1');
+
+// If in local development, use the environment variable or fallback
+if (isLocalDevelopment) {
+  console.log('Running in local development mode');
+  API_URL = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
+}
+
+console.log('API URL being used:', API_URL);
 
 // Create an Axios instance with default configurations
 const api = axios.create({
@@ -23,6 +35,15 @@ let isRedirecting = false;
 // Add request interceptor to add token to requests
 api.interceptors.request.use(
   (config) => {
+    // Ensure all requests start with / for proper routing
+    if (!config.url.startsWith('/')) {
+      config.url = '/' + config.url;
+    }
+    
+    // For debugging - log the complete URL being used
+    const fullUrl = `${API_URL}${config.url}`;
+    console.log(`Full request URL: ${fullUrl}`);
+    
     // Add timestamp to GET requests to prevent caching
     if (config.method === 'get') {
       config.params = {
