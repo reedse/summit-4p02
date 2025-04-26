@@ -1,30 +1,45 @@
 import sys
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+logging.debug("WSGI initialization started")
 
 # Path to your project directory on PythonAnywhere
-# You'll need to update this with your actual PythonAnywhere username and path
 project_home = '/home/reedse/summit-4p02'
 
-# Name of the Python file containing your Flask app instance
-# In this case, it's 'main.py' which imports create_app from website
-flask_app_file = 'main'
-
-# Name of the Flask app instance variable in that file
-flask_app_variable = 'app'
-
+# Add project directory to path
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
+    logging.debug(f"Added {project_home} to sys.path")
 
-# Import the application instance
-try:
-    exec(f'from {flask_app_file} import {flask_app_variable} as application')
-except ImportError:
-    # Handle potential import errors, maybe log them
-    # For now, re-raise to see the error in PythonAnywhere logs
-    raise
-
-# Optional: Load .env file if you use one for server-side variables
+# Load environment variables before importing the app
 from dotenv import load_dotenv
 dotenv_path = os.path.join(project_home, '.env')
 if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path=dotenv_path) 
+    load_dotenv(dotenv_path=dotenv_path)
+    logging.debug(f"Loaded environment from {dotenv_path}")
+else:
+    logging.debug(f"No .env file found at {dotenv_path}")
+
+# Import the Flask app directly
+try:
+    from main import app as application
+    
+    # Add route for SPA client-side routing
+    @application.route('/', defaults={'path': ''})
+    @application.route('/<path:path>')
+    def catch_all(path):
+        # Only handle non-API routes
+        if not path.startswith('api/') and not path.startswith('login') and not path.startswith('sign-up') and not path.startswith('logout'):
+            logging.debug(f"Handling SPA route: {path}")
+            return application.send_static_file('index.html')
+        return application.full_dispatch_request()
+    
+    logging.debug("Successfully imported Flask application with SPA routing")
+except ImportError as e:
+    logging.error(f"Failed to import application: {str(e)}")
+    raise
+
+logging.debug("WSGI file loaded successfully") 

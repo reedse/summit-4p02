@@ -7,6 +7,7 @@ from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 from flask_mail import Mail
+from flask import request
 
 # Load environment variables from .env file
 load_dotenv()
@@ -51,11 +52,15 @@ def create_app(test_config=None):
 
     # Configure CORS properly with credentials support
     CORS(app, 
-         resources={r"/*": {"origins": ["http://localhost:3000", "https://summit-4p02.vercel.app"]}},
+        resources={r"/*": {"origins": ["http://localhost:3000", "https://summit-4p02.vercel.app"]}},
          supports_credentials=True,
-         allow_headers=["Content-Type", "Authorization", "Accept"],
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         allow_headers=["Content-Type", "Authorization", "Accept", "X-Requested-With", "Origin"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
          expose_headers=["Content-Type", "X-CSRFToken"])
+
+    # Configure the static files serving for React SPA
+    app.static_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'website/templates/dist')
+    app.static_url_path = ''
 
     db.init_app(app)
     migrate.init_app(app, db)  # Important: Initialize Flask-Migrate here
@@ -88,13 +93,28 @@ def create_app(test_config=None):
 
     mail.init_app(app)
 
+    # Handle OPTIONS request for CORS preflight
+    @app.route('/', defaults={'path': ''}, methods=['OPTIONS'])
+    @app.route('/<path:path>', methods=['OPTIONS'])
+    def handle_options(path):
+        response = app.make_default_options_response()
+        response.headers['Access-Control-Allow-Origin'] = '*'  # Allow all origins for now
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept,X-Requested-With,Origin'
+        response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS,PATCH'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Max-Age'] = '3600'  # Cache preflight for 1 hour
+        return response
+
     # Additional CORS headers for every response
     @app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Origin', 'https://summit-4p02.vercel.app')
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        if request.method != 'OPTIONS':  # Skip for OPTIONS which is handled above
+            # Get the request origin or default to '*'
+            origin = request.headers.get('Origin', '*')
+            response.headers['Access-Control-Allow-Origin'] = origin
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type,Authorization,Accept,X-Requested-With,Origin'
+            response.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,OPTIONS,PATCH'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response
 
     return app

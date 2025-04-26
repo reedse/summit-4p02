@@ -1924,6 +1924,16 @@ from flask import render_template, session
 def dashboard():
     user_plan = session.get('role', 'Free')  # Default to 'Free' if not set
     user_role = current_user.role  # Get the user's role
+    
+    # Check if this is an API request
+    if request.headers.get('Content-Type') == 'application/json' or request.headers.get('Accept') == 'application/json':
+        return jsonify({
+            'plan': user_plan,
+            'role': user_role,
+            'message': 'Dashboard data loaded successfully'
+        }), 200
+        
+    # For regular browser requests, return the template
     return render_template('dashboard.html', plan=user_plan, role=user_role)
 
 from flask import request, jsonify, session
@@ -2842,3 +2852,8 @@ def get_weekly_newsletters():
     except Exception as e:
         print(f"Error fetching weekly newsletters: {str(e)}")
         return jsonify({'error': str(e), 'weekly_data': []}), 500
+
+# Add a simple test route that just returns a static HTML page
+@views.route('/test-page')
+def test_page():
+    return render_template('test.html')
