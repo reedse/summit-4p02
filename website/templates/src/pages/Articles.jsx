@@ -13,10 +13,10 @@ import '../styles/theme.css';
 import { 
   searchNewsArticles, 
   toggleArticleFavorite, 
-  getFavoriteArticles
+  getFavoriteArticles,
+  getUserInfo
 } from '../services/api';
 import ArticleCard from '../components/Articles/ArticleCard';
-import axios from 'axios';
 
 const AVAILABLE_CATEGORIES = [
   'business', 
@@ -50,9 +50,9 @@ const Articles = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await axios.get('/api/user-info');
-        if (response.status === 200) {
-          setPlan(response.data.role);
+        const data = await getUserInfo();
+        if (data && data.role) {
+          setPlan(data.role);
         }
       } catch (error) {
         console.error('Error fetching user info:', error);

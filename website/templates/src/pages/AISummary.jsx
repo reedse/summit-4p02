@@ -58,7 +58,7 @@ import {
 
 import IconButton from '@mui/material/IconButton';
 
-import { generateSummary, saveSummary } from '../services/api';
+import { generateSummary, saveSummary, getUserInfo } from '../services/api';
 
 // Tab panel component
 function TabPanel(props) {
@@ -356,12 +356,11 @@ const AISummary = () => {
   useEffect(() => {
     const fetchUserPlan = async () => {
       try {
-        const response = await fetch('/api/user-info'); // Backend API to fetch user info
-        const data = await response.json();
-        if (response.ok) {
+        const data = await getUserInfo();
+        if (data && data.role) {
           setPlan(data.role); // Update the plan state (e.g., 'Free', 'Pro', 'Admin')
         } else {
-          console.error('Failed to fetch user plan:', data.error);
+          console.error('Failed to fetch user plan');
         }
       } catch (error) {
         console.error('Error fetching user plan:', error);
@@ -596,19 +595,16 @@ const AISummary = () => {
     setSaving(true);
   
     try {
-      const response = await axios.post('/api/newsletter', {
-        headline,
-        summary
-      });
+      const response = await saveSummary(headline, summary, '', tone, length);
   
-      if (response.data.success) {
+      if (response.success) {
         setSnackbar({
           open: true,
           message: 'Summary added to newsletters successfully',
           severity: 'success'
         });
       } else {
-        throw new Error(response.data.error || 'Failed to add summary to newsletters');
+        throw new Error(response.error || 'Failed to add summary to newsletters');
       }
     } catch (err) {
       console.error('Error saving summary to newsletters:', err);
@@ -635,27 +631,29 @@ const AISummary = () => {
     setSavingTranslation(true);
 
     try {
-      // Using the same API endpoint as summary saving but with both translated headline and content
-      const response = await axios.post('/api/newsletter', {
-        headline: translatedHeadline || `Translation from ${getLanguageName(sourceLanguage)} to ${getLanguageName(targetLanguage)}`,
-        summary: outputText,
-        metadata: {
-          source_language: sourceLanguage,
-          target_language: targetLanguage,
-          original_headline: headline,
-          original_text: inputText,
-          type: 'translation'
-        }
-      });
+      // Create a headline for the translation if one doesn't exist
+      const translationHeadline = translatedHeadline || 
+        `Translation from ${getLanguageName(sourceLanguage)} to ${getLanguageName(targetLanguage)}`;
+      
+      // Add metadata as tags
+      const tags = `translation,${sourceLanguage},${targetLanguage}`;
+      
+      const response = await saveSummary(
+        translationHeadline,
+        outputText,
+        tags,
+        'professional',
+        100
+      );
   
-      if (response.data.success) {
+      if (response.success) {
         setSnackbar({
           open: true,
           message: 'Translation saved successfully',
           severity: 'success'
         });
       } else {
-        throw new Error(response.data.error || 'Failed to save translation');
+        throw new Error(response.error || 'Failed to save translation');
       }
     } catch (err) {
       console.error('Error saving translation:', err);
@@ -682,12 +680,9 @@ const AISummary = () => {
     setSaving(true);
   
     try {
-      const response = await axios.post('/api/newsletter', {
-        headline,
-        summary
-      });
+      const response = await saveSummary(headline, summary, '', tone, length);
   
-      if (response.data.success) {
+      if (response.success) {
         setSnackbar({
           open: true,
           message: 'Summary saved successfully. Redirecting to template editor...',
@@ -699,7 +694,7 @@ const AISummary = () => {
           navigate('/templates?skipOverlay=true');
         }, 1500);
       } else {
-        throw new Error(response.data.error || 'Failed to save summary');
+        throw new Error(response.error || 'Failed to save summary');
       }
     } catch (err) {
       console.error('Error saving summary:', err);

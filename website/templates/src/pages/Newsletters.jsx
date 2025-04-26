@@ -24,7 +24,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import SendModal from '../components/SendModal';
-import { getSavedTemplates, deleteTemplate } from '../services/api';
+import { getSavedTemplates, deleteTemplate, getUserInfo, getSentThisMonth } from '../services/api';
 
 const Newsletters = () => {
   const [templates, setTemplates] = useState([]);
@@ -39,12 +39,11 @@ const Newsletters = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const response = await fetch('/api/user-info'); // Backend API to fetch user info
-        const data = await response.json();
-        if (response.ok) {
+        const data = await getUserInfo();
+        if (data) {
           setPlan(data.role); // Update the plan state (e.g., 'Free', 'Pro', 'Admin')
         } else {
-          console.error('Failed to fetch user plan:', data.error);
+          console.error('Failed to fetch user plan');
         }
       } catch (error) {
         console.error('Error fetching user plan:', error);
@@ -111,9 +110,8 @@ const Newsletters = () => {
 
   const fetchSentThisMonth = async () => {
     try {
-      const response = await fetch('/api/newsletter/sent-this-month');
-      const data = await response.json();
-      if (response.ok) {
+      const data = await getSentThisMonth();
+      if (data) {
         setSentThisMonth(data.sent_this_month);
       }
     } catch (error) {
@@ -151,9 +149,8 @@ const Newsletters = () => {
       setSentThisMonth(updatedCount);
     } else {
       try {
-        const response = await fetch('/api/newsletter/sent-this-month');
-        const data = await response.json();
-        if (response.ok) {
+        const data = await getSentThisMonth();
+        if (data) {
           setSentThisMonth(data.sent_this_month);
         }
       } catch (error) {
