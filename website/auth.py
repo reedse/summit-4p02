@@ -113,3 +113,11 @@ def check_auth():
             }
         }), 200
     return jsonify({"authenticated": False}), 401
+
+# Add test endpoint
+@auth.route("/api/test", methods=["GET"])
+def test_api():
+    return jsonify({
+        "status": "success",
+        "message": "API is working correctly"
+    }), 200

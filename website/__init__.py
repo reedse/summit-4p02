@@ -53,8 +53,9 @@ def create_app(test_config=None):
     CORS(app, 
          resources={r"/*": {"origins": ["http://localhost:3000", "https://summit-4p02.vercel.app"]}},
          supports_credentials=True,
-         allow_headers=["Content-Type", "Authorization"],
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+         allow_headers=["Content-Type", "Authorization", "Accept"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+         expose_headers=["Content-Type", "X-CSRFToken"])
 
     db.init_app(app)
     migrate.init_app(app, db)  # Important: Initialize Flask-Migrate here
@@ -86,6 +87,15 @@ def create_app(test_config=None):
     scheduler = init_scheduler(app)
 
     mail.init_app(app)
+
+    # Additional CORS headers for every response
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Origin', 'https://summit-4p02.vercel.app')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
 
     return app
 

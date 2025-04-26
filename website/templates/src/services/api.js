@@ -3,6 +3,9 @@ import axios from 'axios';
 // Base URL of the Flask server (ensure it matches your backend's running address)
 const API_URL = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
 
+// Add a console log to show the API URL
+console.log('API URL:', API_URL);
+
 // Create an Axios instance with default configurations
 const api = axios.create({
   baseURL: API_URL, // Set the base URL for all API requests
@@ -690,5 +693,22 @@ export const deleteSummary = async (summaryId, forceDelete = false) => {
   } catch (error) {
     console.error('Failed to delete summary:', error);
     throw error.response?.data || { error: error.message };
+  }
+};
+
+// Add test function
+export const testApiConnection = async () => {
+  try {
+    console.log('Testing API connection to:', API_URL);
+    const response = await axios.get(`${API_URL}/api/test`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log('API test response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('API test failed:', error);
+    throw error;
   }
 };
