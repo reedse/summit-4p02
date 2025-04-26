@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://your-flask-backend-url.com/api/$1" },
+    { "source": "/api/(.*)", "destination": "https://reedse.pythonanywhere.com/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

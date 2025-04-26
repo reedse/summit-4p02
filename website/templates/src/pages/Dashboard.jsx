@@ -35,6 +35,7 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import axios from 'axios';
 
 // Register ChartJS components
 ChartJS.register(
@@ -427,6 +428,12 @@ const Dashboard = () => {
   const refreshDashboard = async () => {
     setIsRefreshing(true);
     try {
+      console.log('Refreshing dashboard data...');
+      
+      // Use the explicit backend URL for refreshing data
+      const backendUrl = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
+      console.log('Using explicit backend URL for refresh:', backendUrl);
+      
       await Promise.all([
         fetchUserInfo(),
         fetchNewsletterCount(),
@@ -435,6 +442,8 @@ const Dashboard = () => {
         fetchWeeklySummaries(),
         fetchWeeklyNewsletters()
       ]);
+      
+      console.log('Dashboard data refresh complete');
     } catch (error) {
       console.error("Error refreshing dashboard data:", error);
     } finally {
@@ -449,6 +458,7 @@ const Dashboard = () => {
       setError(null);
       try {
         // Check auth first
+        console.log('About to check auth from Dashboard');
         await api.get('/api/check-auth');
         
         // Then fetch all data
@@ -484,7 +494,9 @@ const Dashboard = () => {
 
     const fetchUserInfo = async () => {
       try {
+        console.log('Fetching user info from Dashboard');
         const response = await api.get('/api/user-info');
+        console.log('User info response:', response);
         if (response.data) {
           setPlan(response.data.role);
           setIsAdmin(response.data.role.toLowerCase() === 'admin');
@@ -498,7 +510,21 @@ const Dashboard = () => {
 
     const fetchNewsletterCount = async () => {
       try {
-        const response = await api.get('/api/template/saved');
+        console.log('Fetching templates from Dashboard');
+        // Test with explicit backend URL to see if this resolves the issue
+        const backendUrl = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
+        console.log('Using explicit backend URL:', backendUrl);
+        
+        // Use the direct backend URL for this request as a test
+        const response = await axios.get(`${backendUrl}/api/template/saved`, {
+          withCredentials: true,
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        console.log('Templates response:', response);
         setNewsletterCount(response.data.templates.length);
       } catch (error) {
         console.error('Error fetching templates:', error);
@@ -507,7 +533,9 @@ const Dashboard = () => {
 
     const fetchSentNewsletterCount = async () => {
       try {
+        console.log('Fetching sent newsletters count from Dashboard');
         const response = await api.get('/api/newsletter/sent-this-month');
+        console.log('Sent newsletters response:', response);
         setSentNewsletterCount(response.data.sent_this_month);
       } catch (error) {
         console.error('Error fetching sent newsletters count:', error);
@@ -516,7 +544,9 @@ const Dashboard = () => {
 
     const fetchSubscribers = async () => {
       try {
+        console.log('Fetching subscribers from Dashboard');
         const response = await api.get('/api/subscribers');
+        console.log('Subscribers response:', response);
         setSubscriberCount(response.data.subscribers.length);
       } catch (error) {
         console.error('Error fetching subscribers:', error);
@@ -525,7 +555,8 @@ const Dashboard = () => {
 
     const fetchWeeklySummaries = async () => {
       try {
-        console.log('Fetching weekly summaries...');
+        console.log('Fetching weekly summaries from Dashboard...');
+        const backendUrl = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
         const response = await api.get('/api/summaries/weekly');
         console.log('Weekly summaries response:', response);
         
@@ -573,7 +604,8 @@ const Dashboard = () => {
 
     const fetchWeeklyNewsletters = async () => {
       try {
-        console.log('Fetching weekly newsletters...');
+        console.log('Fetching weekly newsletters from Dashboard...');
+        const backendUrl = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
         const response = await api.get('/api/newsletters/weekly');
         console.log('Weekly newsletters response:', response);
         
