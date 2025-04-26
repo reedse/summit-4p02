@@ -4,9 +4,5 @@
       "source": "/(.*)",
       "destination": "/index.html"
     }
-  ],
-  "buildCommand": "cd website/templates && npm install && npm run build",
-  "outputDirectory": "website/templates/dist",
-  "installCommand": "cd website/templates && npm install",
-  "rootDirectory": "website/templates"
+  ]
 } 
