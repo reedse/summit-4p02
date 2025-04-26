@@ -15,9 +15,6 @@ const api = axios.create({
   withCredentials: true, // Enable sending cookies with requests
 });
 
-// Flag to prevent multiple redirects
-let isRedirecting = false;
-
 // Add request interceptor to add token to requests
 api.interceptors.request.use(
   (config) => {
@@ -36,16 +33,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !isRedirecting) {
-      isRedirecting = true;
+    if (error.response?.status === 401) {
       // Clear authentication data on unauthorized
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      
-      // Only redirect if we're not already on the login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
-      }
+      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

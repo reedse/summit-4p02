@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Joyride from 'react-joyride';
-import { Box, Typography, Grid, Paper, Button, Stack, Card, CardContent, IconButton, CircularProgress } from '@mui/material';
+import { Box, Typography, Grid, Paper, Button, Stack, Card, CardContent, IconButton } from '@mui/material';
 import TranslatedText from '../components/TranslatedText';
 import {
   Edit as EditIcon,
@@ -211,8 +211,7 @@ const Dashboard = () => {
   const [subscriberCount, setSubscriberCount] = useState(0);
   const [plan, setPlan] = useState('Free'); // Default to Free plan
   const [runTutorial, setRunTutorial] = useState(false); // Don't start tutorial automatically
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Sample data for charts - in a real app, this would come from API
@@ -446,15 +445,10 @@ const Dashboard = () => {
 
   // Fetch user info, newsletter count, sent newsletters count, and Twitter post count
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchAll = async () => {
       setIsLoading(true);
-      setError(null);
       try {
-        // Check auth first
-        await axios.get('/api/check-auth');
-        
-        // Then fetch all data
-        const results = await Promise.allSettled([
+        await Promise.all([
           fetchUserInfo(),
           fetchNewsletterCount(),
           fetchSentNewsletterCount(),
@@ -462,16 +456,8 @@ const Dashboard = () => {
           fetchWeeklySummaries(),
           fetchWeeklyNewsletters()
         ]);
-
-        // Process results
-        results.forEach((result, index) => {
-          if (result.status === 'rejected') {
-            console.error(`Failed to fetch data set ${index}:`, result.reason);
-          }
-        });
-      } catch (err) {
-        console.error('Dashboard data fetch error:', err);
-        setError(err.message || 'Failed to load dashboard data');
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -663,12 +649,12 @@ const Dashboard = () => {
     };
 
     // Call our data fetching function
-    fetchDashboardData();
+    fetchAll();
 
     // Set up a 30-second refresh interval for real-time updates
     const refreshInterval = setInterval(() => {
       console.log('Auto-refreshing dashboard data...');
-      fetchDashboardData();
+      fetchAll();
     }, 30000); // 30 seconds
     
     // Clean up the interval when component unmounts
@@ -742,43 +728,6 @@ const Dashboard = () => {
     { title: 'Subscribers', value: subscriberCount.toLocaleString(), icon: <SpeedIcon /> },
     { title: 'Current Plan', value: plan, icon: <ArticleIcon /> }, // Updated to show the user's current plan
   ];
-
-  if (isLoading) {
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh' 
-      }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        minHeight: '100vh',
-        p: 3 
-      }}>
-        <Typography variant="h6" color="error" gutterBottom>
-          {error}
-        </Typography>
-        <Button 
-          variant="contained" 
-          onClick={() => window.location.reload()}
-          sx={{ mt: 2 }}
-        >
-          Retry
-        </Button>
-      </Box>
-    );
-  }
 
   return (
     <Box
