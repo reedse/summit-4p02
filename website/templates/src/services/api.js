@@ -696,6 +696,48 @@ export const deleteSummary = async (summaryId, forceDelete = false) => {
   }
 };
 
+/**
+ * Get user information (role, admin status, etc.)
+ * @returns {Promise<Object>} - The response with user information
+ */
+export const getUserInfo = async () => {
+  try {
+    const response = await api.get('/api/user-info');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get user info:', error);
+    throw error.response?.data || { error: error.message };
+  }
+};
+
+/**
+ * Get count of newsletters sent this month
+ * @returns {Promise<Object>} - The response with sent newsletter count
+ */
+export const getSentThisMonth = async () => {
+  try {
+    const response = await api.get('/api/newsletter/sent-this-month');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get sent newsletters count:', error);
+    throw error.response?.data || { error: error.message };
+  }
+};
+
+/**
+ * Get all subscribers
+ * @returns {Promise<Object>} - The response with the list of subscribers
+ */
+export const getSubscribers = async () => {
+  try {
+    const response = await api.get('/api/subscribers');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to get subscribers:', error);
+    throw error.response?.data || { error: error.message };
+  }
+};
+
 // Add test function
 export const testApiConnection = async () => {
   try {

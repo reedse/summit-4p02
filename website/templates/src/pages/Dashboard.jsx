@@ -19,7 +19,6 @@ import {
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import '../styles/theme.css';
 // Import Chart.js components
 import {
@@ -35,8 +34,15 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
-// Import our API service functions
-import { getWeeklySummaries, getWeeklyNewsletters } from '../services/api';
+// Import our API service functions - UPDATED IMPORTS
+import { 
+  getWeeklySummaries, 
+  getWeeklyNewsletters, 
+  getSavedTemplates,
+  getUserInfo,
+  getSentThisMonth,
+  getSubscribers
+} from '../services/api';
 
 // Register ChartJS components
 ChartJS.register(
@@ -465,14 +471,10 @@ const Dashboard = () => {
 
     const fetchUserInfo = async () => {
       try {
-        const response = await fetch('/api/user-info');
-        const data = await response.json();
-        if (response.ok) {
-          setPlan(data.role);
-          setIsAdmin(data.role.toLowerCase() === 'admin');
-        } else {
-          console.error('Failed to fetch user info:', data.error);
-        }
+        // Use the getUserInfo function from API service
+        const data = await getUserInfo();
+        setPlan(data.role);
+        setIsAdmin(data.role.toLowerCase() === 'admin');
       } catch (error) {
         console.error('Error fetching user info:', error);
       }
@@ -480,45 +482,50 @@ const Dashboard = () => {
 
     const fetchNewsletterCount = async () => {
       try {
-        const response = await axios.get('/api/template/saved');
-        setNewsletterCount(response.data.templates.length);
+        // Use the imported getSavedTemplates function
+        const response = await getSavedTemplates();
+        if (response && response.templates) {
+          setNewsletterCount(response.templates.length);
+        } else {
+          setNewsletterCount(0);
+        }
       } catch (error) {
         console.error('Error fetching templates:', error);
+        setNewsletterCount(0);
       }
     };
 
     const fetchSentNewsletterCount = async () => {
       try {
-        const response = await axios.get('/api/newsletter/sent-this-month');
-        setSentNewsletterCount(response.data.sent_this_month);
+        // Use the getSentThisMonth function from API service
+        const data = await getSentThisMonth();
+        setSentNewsletterCount(data.sent_this_month);
       } catch (error) {
         console.error('Error fetching sent newsletters count:', error);
+        setSentNewsletterCount(0);
       }
     };
 
     const fetchSubscribers = async () => {
       try {
-        const response = await axios.get('/api/subscribers');
-        setSubscriberCount(response.data.subscribers.length);
+        // Use the getSubscribers function from API service
+        const data = await getSubscribers();
+        if (data.subscribers) {
+          setSubscriberCount(data.subscribers.length);
+        } else {
+          setSubscriberCount(0);
+        }
       } catch (error) {
         console.error('Error fetching subscribers:', error);
+        setSubscriberCount(0);
       }
     };
 
-    // New function to fetch weekly summaries data using direct axios call
+    // Use the imported service function
     const fetchWeeklySummaries = async () => {
       try {
         console.log('Fetching weekly summaries...');
-        // Add cache busting parameter to prevent browser caching
-        const timestamp = new Date().getTime();
-        const response = await axios.get(`/api/summaries/weekly?_=${timestamp}`, {
-          withCredentials: true,
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
+        const response = await getWeeklySummaries();
         console.log('Weekly summaries response:', response);
         
         // Initialize with zeros for all days
@@ -531,8 +538,8 @@ const Dashboard = () => {
         weeklySummariesData[today] = newsletterCount;
         
         // If we have API data, incorporate it for previous days
-        if (response.data && response.data.weekly_data) {
-          response.data.weekly_data.forEach(item => {
+        if (response && response.weekly_data) {
+          response.weekly_data.forEach(item => {
             if (item.sent_at) {
               const itemDate = new Date(item.sent_at);
               const dayOfWeek = itemDate.getDay();
@@ -554,14 +561,6 @@ const Dashboard = () => {
         }));
       } catch (error) {
         console.error('Error fetching weekly summaries:', error);
-        if (error.response) {
-          console.error('Error response status:', error.response.status);
-          console.error('Error response data:', error.response.data);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error message:', error.message);
-        }
         // If API fails, use current count for today
         const fallbackData = Array(7).fill(0);
         fallbackData[new Date().getDay()] = newsletterCount;
@@ -572,20 +571,11 @@ const Dashboard = () => {
       }
     };
 
-    // New function to fetch weekly newsletters data using direct axios call
+    // Use the imported service function
     const fetchWeeklyNewsletters = async () => {
       try {
         console.log('Fetching weekly newsletters...');
-        // Add cache busting parameter to prevent browser caching
-        const timestamp = new Date().getTime();
-        const response = await axios.get(`/api/newsletters/weekly?_=${timestamp}`, {
-          withCredentials: true,
-          headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
+        const response = await getWeeklyNewsletters();
         console.log('Weekly newsletters response:', response);
         
         // Initialize with zeros for all days
@@ -598,8 +588,8 @@ const Dashboard = () => {
         weeklyNewslettersData[today] = sentNewsletterCount;
         
         // If we have API data, incorporate it for previous days
-        if (response.data && response.data.weekly_data) {
-          response.data.weekly_data.forEach(item => {
+        if (response && response.weekly_data) {
+          response.weekly_data.forEach(item => {
             if (item.created_at) {
               const itemDate = new Date(item.created_at);
               const dayOfWeek = itemDate.getDay();
@@ -621,15 +611,6 @@ const Dashboard = () => {
         }));
       } catch (error) {
         console.error('Error fetching weekly newsletters:', error);
-        if (error.response) {
-          console.error('Error response status:', error.response.status);
-          console.error('Error response data:', error.response.data);
-        } else if (error.request) {
-          console.error('No response received:', error.request);
-        } else {
-          console.error('Error message:', error.message);
-        }
-        
         // Fallback - just use sentNewsletterCount for today
         fallbackNewsletterData();
       }
