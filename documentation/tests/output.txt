@@ -1,0 +1,17 @@
+FAILED website/tests/test_ai_summary_integration.py::TestAISummaryIntegration::test_ai_summary_generation_with_article - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_ai_summary_integration.py::TestAISummaryIntegration::test_ai_summary_handles_article_fetch_error - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_ai_summary_integration.py::TestAISummaryIntegration::test_ai_summary_handles_invalid_article_content - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_ai_summary_integration.py::TestAISummaryIntegration::test_ai_summary_handles_summary_generation_error - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_ai_summary_integration.py::TestAISummaryIntegration::test_ai_summary_loads_article_url - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_frontend_components.py::TestFrontendComponents::test_article_favorite_functionality - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_frontend_components.py::TestFrontendComponents::test_article_search_functionality - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_frontend_components.py::TestFrontendComponents::test_article_summarization_redirection - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_frontend_components.py::TestFrontendComponents::test_category_selection_ui - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_get_favorite_articles_endpoint - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_get_favorite_articles_endpoint_empty - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_search_news_endpoint - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_search_news_endpoint_missing_categories - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_search_news_endpoint_too_many_categories - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_toggle_article_favorite_endpoint_add - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_toggle_article_favorite_endpoint_remove - TypeError: 'last_name' is an invalid keyword argument for User
+FAILED website/tests/test_news_routes.py::TestNewsRoutes::test_unauthenticated_access - TypeError: 'last_name' is an invalid keyword argument for User

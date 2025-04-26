@@ -1,0 +1,6 @@
+node_modules/
+.cursorrules
+__pycache__/
+repomix-output.txt
+.env
+.env.local

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ headline }}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            grid-column: 1 / span 3;
+            background-color: #4a4a4a;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .headline {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 600px) {
+            .grid-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        .section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            border-bottom: 2px solid #4a4a4a;
+            padding-bottom: 10px;
+            font-size: 20px;
+            margin-top: 0;
+        }
+        .section-content {
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            background-color: #4a4a4a;
+            color: white;
+            border-radius: 5px;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .footer a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="headline">{{ headline }}</h1>
+        </div>
+        
+        <div class="grid-container">
+            <div class="section">
+                <h2 class="section-title">Section 1</h2>
+                <div class="section-content">{{ section1 }}</div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Section 2</h2>
+                <div class="section-content">{{ section2 }}</div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Section 3</h2>
+                <div class="section-content">{{ section3 }}</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Follow us on: <a href="https://facebook.com">Facebook</a> | <a href="https://twitter.com">Twitter</a> | <a href="https://linkedin.com">LinkedIn</a></p>
+            <p>© {{ year }} SUMMIT. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html> 

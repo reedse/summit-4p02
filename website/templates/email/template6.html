@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ headline }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #e0f2f1;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #2C2C54;
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .headline {
+            margin: 0;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .columns {
+            display: table;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+        }
+        .column {
+            display: table-cell;
+            width: 50%;
+            background-color: #40407A;
+            color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            vertical-align: top;
+        }
+        @media screen and (max-width: 600px) {
+            .columns {
+                display: block;
+            }
+            .column {
+                display: block;
+                width: auto;
+                margin-bottom: 10px;
+            }
+        }
+        .column-title {
+            border-bottom: 1px solid #fff;
+            padding-bottom: 8px;
+            font-size: 16px;
+            margin-top: 0;
+        }
+        .column-content {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        .footer {
+            background-color: #1A1A40;
+            color: #fff;
+            padding: 15px;
+            text-align: center;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer p {
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #fff;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="headline">{{ headline }}</h1>
+        </div>
+        
+        <div class="columns">
+            <div class="column">
+                <h3 class="column-title">Column 1</h3>
+                <div class="column-content">{{ content_left }}</div>
+            </div>
+            
+            <div class="column">
+                <h3 class="column-title">Column 2</h3>
+                <div class="column-content">{{ content_right }}</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Follow us on:</p>
+            <p>
+                <a href="https://facebook.com">Facebook</a> |
+                <a href="https://twitter.com">Twitter</a> |
+                <a href="https://linkedin.com">LinkedIn</a>
+            </p>
+            <p>© {{ year }} SUMMIT. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html> 

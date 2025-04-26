@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ headline }}</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            color: #000;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #fff;
+            border-bottom: 2px solid #000;
+        }
+        .banner {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-bottom: 2px solid #000;
+        }
+        .main-content {
+            padding: 20px;
+            background-color: #fff;
+        }
+        .headline {
+            margin: 0;
+            font-size: 36px;
+            font-weight: bold;
+        }
+        .subheadline {
+            margin: 0;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .content-body {
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        .footer {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #fff;
+            margin: 0 5px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"></div>
+        <div class="banner">
+            <h1 class="headline">{{ headline }}</h1>
+            <h2 class="subheadline">NEWSLETTER</h2>
+        </div>
+        <div class="main-content">
+            <h2 class="content-title">Latest Updates</h2>
+            <p class="content-body">{{ content }}</p>
+        </div>
+        <div class="footer">
+            <p>Follow us on:</p>
+            <p>
+                <a href="https://facebook.com">Facebook</a> |
+                <a href="https://twitter.com">Twitter</a> |
+                <a href="https://linkedin.com">LinkedIn</a>
+            </p>
+            <p>© {{ year }} SUMMIT. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,55 @@
+/* Global styles */
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  min-height: 100vh;
+}
+
+/* Consistent text styles */
+h1, h2, h3, h4, h5, h6 {
+  color: #1a1a1a;
+}
+
+p {
+  color: #333333;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Links */
+a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Form elements */
+input, textarea {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+/* Focus states */
+*:focus {
+  outline-color: #1976d2;
+}

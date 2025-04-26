@@ -1,0 +1,44 @@
+======================================================================
+FAIL: test_ai_summary_handles_article_fetch_error (website.tests.test_ai_summary_integration.TestAISummaryIntegration.test_ai_summary_handles_article_fetch_error)
+Test handling of errors when fetching the article
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python313\Lib\unittest\mock.py", line 1424, in patched
+    return func(*newargs, **newkeywargs)
+  File "C:\Users\user\Desktop\COSC-4P02-Group-11\website\tests\test_ai_summary_integration.py", line 160, in test_ai_summary_handles_article_fetch_error
+    self.assertEqual(response.status_code, 500)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 400 != 500
+
+======================================================================
+FAIL: test_ai_summary_handles_summary_generation_error (website.tests.test_ai_summary_integration.TestAISummaryIntegration.test_ai_summary_handles_summary_generation_error)        
+Test handling of errors during summary generation
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python313\Lib\unittest\mock.py", line 1424, in patched
+    return func(*newargs, **newkeywargs)
+  File "C:\Users\user\Desktop\COSC-4P02-Group-11\website\tests\test_ai_summary_integration.py", line 185, in test_ai_summary_handles_summary_generation_error
+    self.assertEqual(response.status_code, 503)  # Service Unavailable
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 400 != 503
+
+======================================================================
+FAIL: test_ai_summary_loads_article_url (website.tests.test_ai_summary_integration.TestAISummaryIntegration.test_ai_summary_loads_article_url)
+Test that AISummary loads article URL from localStorage
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Python313\Lib\unittest\mock.py", line 1424, in patched
+    return func(*newargs, **newkeywargs)
+  File "C:\Users\user\Desktop\COSC-4P02-Group-11\website\tests\test_ai_summary_integration.py", line 103, in test_ai_summary_loads_article_url
+    mock_requests_get.assert_called_with('https://example.com/article/1')
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python313\Lib\unittest\mock.py", line 977, in assert_called_with
+    raise AssertionError(_error_message()) from cause
+AssertionError: expected call not found.
+Expected: get('https://example.com/article/1')
+  Actual: get('https://example.com/article/1', headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}, timeout=10)
+
+----------------------------------------------------------------------
+Ran 5 tests in 5.003s
+
+FAILED (failures=4)
