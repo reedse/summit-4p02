@@ -19,7 +19,7 @@ import {
   Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../services/api';
+import axios from 'axios';
 import '../styles/theme.css';
 // Import Chart.js components
 import {
@@ -35,6 +35,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+// Import our API service functions
+import { getWeeklySummaries, getWeeklyNewsletters } from '../services/api';
 
 // Register ChartJS components
 ChartJS.register(
@@ -449,7 +451,7 @@ const Dashboard = () => {
       setError(null);
       try {
         // Check auth first
-        await api.get('/api/check-auth');
+        await axios.get('/api/check-auth');
         
         // Then fetch all data
         const results = await Promise.allSettled([
@@ -461,19 +463,12 @@ const Dashboard = () => {
           fetchWeeklyNewsletters()
         ]);
 
-        // Process results and log any failures
+        // Process results
         results.forEach((result, index) => {
           if (result.status === 'rejected') {
             console.error(`Failed to fetch data set ${index}:`, result.reason);
           }
         });
-
-        // Check if all critical data failed to load
-        const criticalDataFailed = results.slice(0, 4).every(r => r.status === 'rejected');
-        if (criticalDataFailed) {
-          throw new Error('Failed to load critical dashboard data');
-        }
-
       } catch (err) {
         console.error('Dashboard data fetch error:', err);
         setError(err.message || 'Failed to load dashboard data');
@@ -484,21 +479,22 @@ const Dashboard = () => {
 
     const fetchUserInfo = async () => {
       try {
-        const response = await api.get('/api/user-info');
-        if (response.data) {
-          setPlan(response.data.role);
-          setIsAdmin(response.data.role.toLowerCase() === 'admin');
+        const response = await fetch('/api/user-info');
+        const data = await response.json();
+        if (response.ok) {
+          setPlan(data.role);
+          setIsAdmin(data.role.toLowerCase() === 'admin');
+        } else {
+          console.error('Failed to fetch user info:', data.error);
         }
-        return response.data;
       } catch (error) {
         console.error('Error fetching user info:', error);
-        throw error;
       }
     };
 
     const fetchNewsletterCount = async () => {
       try {
-        const response = await api.get('/api/template/saved');
+        const response = await axios.get('/api/template/saved');
         setNewsletterCount(response.data.templates.length);
       } catch (error) {
         console.error('Error fetching templates:', error);
@@ -507,7 +503,7 @@ const Dashboard = () => {
 
     const fetchSentNewsletterCount = async () => {
       try {
-        const response = await api.get('/api/newsletter/sent-this-month');
+        const response = await axios.get('/api/newsletter/sent-this-month');
         setSentNewsletterCount(response.data.sent_this_month);
       } catch (error) {
         console.error('Error fetching sent newsletters count:', error);
@@ -516,17 +512,27 @@ const Dashboard = () => {
 
     const fetchSubscribers = async () => {
       try {
-        const response = await api.get('/api/subscribers');
+        const response = await axios.get('/api/subscribers');
         setSubscriberCount(response.data.subscribers.length);
       } catch (error) {
         console.error('Error fetching subscribers:', error);
       }
     };
 
+    // New function to fetch weekly summaries data using direct axios call
     const fetchWeeklySummaries = async () => {
       try {
         console.log('Fetching weekly summaries...');
-        const response = await api.get('/api/summaries/weekly');
+        // Add cache busting parameter to prevent browser caching
+        const timestamp = new Date().getTime();
+        const response = await axios.get(`/api/summaries/weekly?_=${timestamp}`, {
+          withCredentials: true,
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         console.log('Weekly summaries response:', response);
         
         // Initialize with zeros for all days
@@ -546,6 +552,7 @@ const Dashboard = () => {
               const dayOfWeek = itemDate.getDay();
               
               // Only count items from previous days, not today
+              // Today's value should come from newsletterCount
               if (dayOfWeek !== today) {
                 weeklySummariesData[dayOfWeek] += 1;
               }
@@ -561,6 +568,14 @@ const Dashboard = () => {
         }));
       } catch (error) {
         console.error('Error fetching weekly summaries:', error);
+        if (error.response) {
+          console.error('Error response status:', error.response.status);
+          console.error('Error response data:', error.response.data);
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Error message:', error.message);
+        }
         // If API fails, use current count for today
         const fallbackData = Array(7).fill(0);
         fallbackData[new Date().getDay()] = newsletterCount;
@@ -571,10 +586,20 @@ const Dashboard = () => {
       }
     };
 
+    // New function to fetch weekly newsletters data using direct axios call
     const fetchWeeklyNewsletters = async () => {
       try {
         console.log('Fetching weekly newsletters...');
-        const response = await api.get('/api/newsletters/weekly');
+        // Add cache busting parameter to prevent browser caching
+        const timestamp = new Date().getTime();
+        const response = await axios.get(`/api/newsletters/weekly?_=${timestamp}`, {
+          withCredentials: true,
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         console.log('Weekly newsletters response:', response);
         
         // Initialize with zeros for all days
@@ -594,6 +619,7 @@ const Dashboard = () => {
               const dayOfWeek = itemDate.getDay();
               
               // Only count items from previous days, not today
+              // Today's value should come from sentNewsletterCount
               if (dayOfWeek !== today) {
                 weeklyNewslettersData[dayOfWeek] += 1;
               }
@@ -609,6 +635,16 @@ const Dashboard = () => {
         }));
       } catch (error) {
         console.error('Error fetching weekly newsletters:', error);
+        if (error.response) {
+          console.error('Error response status:', error.response.status);
+          console.error('Error response data:', error.response.data);
+        } else if (error.request) {
+          console.error('No response received:', error.request);
+        } else {
+          console.error('Error message:', error.message);
+        }
+        
+        // Fallback - just use sentNewsletterCount for today
         fallbackNewsletterData();
       }
     };
@@ -633,11 +669,11 @@ const Dashboard = () => {
     const refreshInterval = setInterval(() => {
       console.log('Auto-refreshing dashboard data...');
       fetchDashboardData();
-    }, 30000);
+    }, 30000); // 30 seconds
     
     // Clean up the interval when component unmounts
     return () => clearInterval(refreshInterval);
-  }, []);
+  }, []); // Keep this as an empty dependency array for the initial load
 
   // Update chart data when analytics values change
   useEffect(() => {
