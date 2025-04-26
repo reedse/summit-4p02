@@ -430,18 +430,191 @@ const Dashboard = () => {
     cutout: '70%',
   };
 
-  // Function to refresh dashboard data
-  const refreshDashboard = async () => {
-    setIsRefreshing(true);
+  // Fetch functions defined at component level for reusability
+  const fetchUserInfo = async () => {
+    try {
+      // Use the getUserInfo function from API service
+      const data = await getUserInfo();
+      setPlan(data.role);
+      setIsAdmin(data.role.toLowerCase() === 'admin');
+    } catch (error) {
+      console.error('Error fetching user info:', error);
+    }
+  };
+
+  const fetchNewsletterCount = async () => {
+    try {
+      // Use the imported getSavedTemplates function
+      const response = await getSavedTemplates();
+      if (response && response.templates) {
+        setNewsletterCount(response.templates.length);
+      } else {
+        setNewsletterCount(0);
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error);
+      setNewsletterCount(0);
+    }
+  };
+
+  const fetchSentNewsletterCount = async () => {
+    try {
+      // Use the getSentThisMonth function from API service
+      const data = await getSentThisMonth();
+      setSentNewsletterCount(data.sent_this_month);
+    } catch (error) {
+      console.error('Error fetching sent newsletters count:', error);
+      setSentNewsletterCount(0);
+    }
+  };
+
+  const fetchSubscribers = async () => {
+    try {
+      // Use the getSubscribers function from API service
+      const data = await getSubscribers();
+      if (data.subscribers) {
+        setSubscriberCount(data.subscribers.length);
+      } else {
+        setSubscriberCount(0);
+      }
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+      setSubscriberCount(0);
+    }
+  };
+
+  // Use the imported service function
+  const fetchWeeklySummaries = async () => {
+    try {
+      console.log('Fetching weekly summaries...');
+      const response = await getWeeklySummaries();
+      console.log('Weekly summaries response:', response);
+      
+      // Initialize with zeros for all days
+      const weeklySummariesData = Array(7).fill(0);
+      
+      // Get today's day of week (0-6, where 0 is Sunday)
+      const today = new Date().getDay();
+      
+      // Set today's value to match the newsletterCount from the stat card
+      weeklySummariesData[today] = newsletterCount;
+      
+      // If we have API data, incorporate it for previous days
+      if (response && response.weekly_data) {
+        response.weekly_data.forEach(item => {
+          if (item.sent_at) {
+            const itemDate = new Date(item.sent_at);
+            const dayOfWeek = itemDate.getDay();
+            
+            // Only count items from previous days, not today
+            // Today's value should come from newsletterCount
+            if (dayOfWeek !== today) {
+              weeklySummariesData[dayOfWeek] += 1;
+            }
+          }
+        });
+      }
+      
+      console.log('Processed weekly summaries data:', weeklySummariesData);
+      
+      setWeeklyData(prevData => ({
+        ...prevData,
+        summaries: weeklySummariesData
+      }));
+    } catch (error) {
+      console.error('Error fetching weekly summaries:', error);
+      // If API fails, use current count for today
+      const fallbackData = Array(7).fill(0);
+      fallbackData[new Date().getDay()] = newsletterCount;
+      setWeeklyData(prevData => ({
+        ...prevData,
+        summaries: fallbackData
+      }));
+    }
+  };
+
+  // Use the imported service function
+  const fetchWeeklyNewsletters = async () => {
+    try {
+      console.log('Fetching weekly newsletters...');
+      const response = await getWeeklyNewsletters();
+      console.log('Weekly newsletters response:', response);
+      
+      // Initialize with zeros for all days
+      const weeklyNewslettersData = Array(7).fill(0);
+      
+      // Get today's day of week (0-6, where 0 is Sunday)
+      const today = new Date().getDay();
+      
+      // Set today's value to match the sentNewsletterCount from the stat card
+      weeklyNewslettersData[today] = sentNewsletterCount;
+      
+      // If we have API data, incorporate it for previous days
+      if (response && response.weekly_data) {
+        response.weekly_data.forEach(item => {
+          if (item.created_at) {
+            const itemDate = new Date(item.created_at);
+            const dayOfWeek = itemDate.getDay();
+            
+            // Only count items from previous days, not today
+            // Today's value should come from sentNewsletterCount
+            if (dayOfWeek !== today) {
+              weeklyNewslettersData[dayOfWeek] += 1;
+            }
+          }
+        });
+      }
+      
+      console.log('Processed weekly newsletters data:', weeklyNewslettersData);
+      
+      setWeeklyData(prevData => ({
+        ...prevData,
+        newsletters: weeklyNewslettersData
+      }));
+    } catch (error) {
+      console.error('Error fetching weekly newsletters:', error);
+      // Fallback - just use sentNewsletterCount for today
+      fallbackNewsletterData();
+    }
+  };
+  
+  // Helper function for newsletter fallback data
+  const fallbackNewsletterData = () => {
+    console.log('Using fallback newsletter data with sentNewsletterCount:', sentNewsletterCount);
+    const today = new Date().getDay();
+    const updatedNewsletterData = Array(7).fill(0);
+    updatedNewsletterData[today] = sentNewsletterCount;
+    
+    setWeeklyData(prevData => ({
+      ...prevData,
+      newsletters: updatedNewsletterData
+    }));
+  };
+
+  // Function to fetch all data
+  const fetchAll = async () => {
+    setIsLoading(true);
     try {
       await Promise.all([
         fetchUserInfo(),
         fetchNewsletterCount(),
-        fetchSentNewsletterCount(), 
+        fetchSentNewsletterCount(),
         fetchSubscribers(),
         fetchWeeklySummaries(),
         fetchWeeklyNewsletters()
       ]);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to refresh dashboard data
+  const refreshDashboard = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchAll();
     } catch (error) {
       console.error("Error refreshing dashboard data:", error);
     } finally {
@@ -449,198 +622,20 @@ const Dashboard = () => {
     }
   };
 
-  // Fetch user info, newsletter count, sent newsletters count, and Twitter post count
+  // Initial data load
   useEffect(() => {
-    const fetchAll = async () => {
-      setIsLoading(true);
-      try {
-        await Promise.all([
-          fetchUserInfo(),
-          fetchNewsletterCount(),
-          fetchSentNewsletterCount(),
-          fetchSubscribers(),
-          fetchWeeklySummaries(),
-          fetchWeeklyNewsletters()
-        ]);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    const fetchUserInfo = async () => {
-      try {
-        // Use the getUserInfo function from API service
-        const data = await getUserInfo();
-        setPlan(data.role);
-        setIsAdmin(data.role.toLowerCase() === 'admin');
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-      }
-    };
-
-    const fetchNewsletterCount = async () => {
-      try {
-        // Use the imported getSavedTemplates function
-        const response = await getSavedTemplates();
-        if (response && response.templates) {
-          setNewsletterCount(response.templates.length);
-        } else {
-          setNewsletterCount(0);
-        }
-      } catch (error) {
-        console.error('Error fetching templates:', error);
-        setNewsletterCount(0);
-      }
-    };
-
-    const fetchSentNewsletterCount = async () => {
-      try {
-        // Use the getSentThisMonth function from API service
-        const data = await getSentThisMonth();
-        setSentNewsletterCount(data.sent_this_month);
-      } catch (error) {
-        console.error('Error fetching sent newsletters count:', error);
-        setSentNewsletterCount(0);
-      }
-    };
-
-    const fetchSubscribers = async () => {
-      try {
-        // Use the getSubscribers function from API service
-        const data = await getSubscribers();
-        if (data.subscribers) {
-          setSubscriberCount(data.subscribers.length);
-        } else {
-          setSubscriberCount(0);
-        }
-      } catch (error) {
-        console.error('Error fetching subscribers:', error);
-        setSubscriberCount(0);
-      }
-    };
-
-    // Use the imported service function
-    const fetchWeeklySummaries = async () => {
-      try {
-        console.log('Fetching weekly summaries...');
-        const response = await getWeeklySummaries();
-        console.log('Weekly summaries response:', response);
-        
-        // Initialize with zeros for all days
-        const weeklySummariesData = Array(7).fill(0);
-        
-        // Get today's day of week (0-6, where 0 is Sunday)
-        const today = new Date().getDay();
-        
-        // Set today's value to match the newsletterCount from the stat card
-        weeklySummariesData[today] = newsletterCount;
-        
-        // If we have API data, incorporate it for previous days
-        if (response && response.weekly_data) {
-          response.weekly_data.forEach(item => {
-            if (item.sent_at) {
-              const itemDate = new Date(item.sent_at);
-              const dayOfWeek = itemDate.getDay();
-              
-              // Only count items from previous days, not today
-              // Today's value should come from newsletterCount
-              if (dayOfWeek !== today) {
-                weeklySummariesData[dayOfWeek] += 1;
-              }
-            }
-          });
-        }
-        
-        console.log('Processed weekly summaries data:', weeklySummariesData);
-        
-        setWeeklyData(prevData => ({
-          ...prevData,
-          summaries: weeklySummariesData
-        }));
-      } catch (error) {
-        console.error('Error fetching weekly summaries:', error);
-        // If API fails, use current count for today
-        const fallbackData = Array(7).fill(0);
-        fallbackData[new Date().getDay()] = newsletterCount;
-        setWeeklyData(prevData => ({
-          ...prevData,
-          summaries: fallbackData
-        }));
-      }
-    };
-
-    // Use the imported service function
-    const fetchWeeklyNewsletters = async () => {
-      try {
-        console.log('Fetching weekly newsletters...');
-        const response = await getWeeklyNewsletters();
-        console.log('Weekly newsletters response:', response);
-        
-        // Initialize with zeros for all days
-        const weeklyNewslettersData = Array(7).fill(0);
-        
-        // Get today's day of week (0-6, where 0 is Sunday)
-        const today = new Date().getDay();
-        
-        // Set today's value to match the sentNewsletterCount from the stat card
-        weeklyNewslettersData[today] = sentNewsletterCount;
-        
-        // If we have API data, incorporate it for previous days
-        if (response && response.weekly_data) {
-          response.weekly_data.forEach(item => {
-            if (item.created_at) {
-              const itemDate = new Date(item.created_at);
-              const dayOfWeek = itemDate.getDay();
-              
-              // Only count items from previous days, not today
-              // Today's value should come from sentNewsletterCount
-              if (dayOfWeek !== today) {
-                weeklyNewslettersData[dayOfWeek] += 1;
-              }
-            }
-          });
-        }
-        
-        console.log('Processed weekly newsletters data:', weeklyNewslettersData);
-        
-        setWeeklyData(prevData => ({
-          ...prevData,
-          newsletters: weeklyNewslettersData
-        }));
-      } catch (error) {
-        console.error('Error fetching weekly newsletters:', error);
-        // Fallback - just use sentNewsletterCount for today
-        fallbackNewsletterData();
-      }
-    };
-    
-    // Helper function for newsletter fallback data
-    const fallbackNewsletterData = () => {
-      console.log('Using fallback newsletter data with sentNewsletterCount:', sentNewsletterCount);
-      const today = new Date().getDay();
-      const updatedNewsletterData = Array(7).fill(0);
-      updatedNewsletterData[today] = sentNewsletterCount;
-      
-      setWeeklyData(prevData => ({
-        ...prevData,
-        newsletters: updatedNewsletterData
-      }));
-    };
-
     // Call our data fetching function
     fetchAll();
 
     // Set up a 30-second refresh interval for real-time updates
     const refreshInterval = setInterval(() => {
       console.log('Auto-refreshing dashboard data...');
-      fetchAll();
+      refreshDashboard();
     }, 30000); // 30 seconds
     
     // Clean up the interval when component unmounts
     return () => clearInterval(refreshInterval);
-  }, []); // Keep this as an empty dependency array for the initial load
+  }, []); // Empty dependency array for initial load only
 
   // Update chart data when analytics values change
   useEffect(() => {
@@ -759,23 +754,41 @@ const Dashboard = () => {
           <TranslatedText>Welcome back,</TranslatedText> {user?.firstName || <TranslatedText>User</TranslatedText>}
         </Typography>
         <Stack direction="row" spacing={2}>
-        <Button
-          variant="outlined"
-          color="primary"
-          startIcon={<TemplateIcon />}
-          onClick={() => setRunTutorial(true)}
-          sx={{
-            borderRadius: 'var(--border-radius-md)',
-            borderColor: 'var(--primary)',
-            color: 'var(--primary)',
-            '&:hover': {
-              borderColor: 'var(--primary-dark)',
-              backgroundColor: 'rgba(var(--primary-rgb), 0.04)',
-            }
-          }}
-        >
-          <TranslatedText>Start Tutorial</TranslatedText>
-        </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<RefreshIcon />}
+            onClick={refreshDashboard}
+            disabled={isRefreshing}
+            sx={{
+              borderRadius: 'var(--border-radius-md)',
+              borderColor: 'var(--primary)',
+              color: 'var(--primary)',
+              '&:hover': {
+                borderColor: 'var(--primary-dark)',
+                backgroundColor: 'rgba(var(--primary-rgb), 0.04)',
+              }
+            }}
+          >
+            {isRefreshing ? <TranslatedText>Refreshing...</TranslatedText> : <TranslatedText>Refresh Data</TranslatedText>}
+          </Button>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<TemplateIcon />}
+            onClick={() => setRunTutorial(true)}
+            sx={{
+              borderRadius: 'var(--border-radius-md)',
+              borderColor: 'var(--primary)',
+              color: 'var(--primary)',
+              '&:hover': {
+                borderColor: 'var(--primary-dark)',
+                backgroundColor: 'rgba(var(--primary-rgb), 0.04)',
+              }
+            }}
+          >
+            <TranslatedText>Start Tutorial</TranslatedText>
+          </Button>
         </Stack>
       </Box>
       <Typography
