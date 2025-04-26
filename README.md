@@ -4,13 +4,13 @@
 A content management system with AI-powered features for content creation, management, and social media integration.
 
 Made by:
-Sean Reed
-Ethan Green
-Mark Zupan
-Mew Tanglimsmarnsuk
-Mohammad Safari
-Esbah Majoka
-Long Tong
+- Sean Reed,
+- Ethan Green,
+- Mark Zupan,
+- Mew Tanglimsmarnsuk, 
+- Mohammad Safari, 
+- Esbah Majoka, 
+- Long Tong, 
 
 ## Setup & Installation
 
