@@ -733,8 +733,8 @@ export const deleteSummary = async (summaryId, forceDelete = false) => {
 // Add test function
 export const testApiConnection = async () => {
   try {
-    console.log('Testing API connection via proxy');
-    const response = await axios.get('/api/test', {
+    console.log('Testing API connection to:', API_URL);
+    const response = await axios.get(`${API_URL}/api/test`, {
       headers: {
         'Content-Type': 'application/json',
       },
