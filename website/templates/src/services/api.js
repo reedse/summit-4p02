@@ -1,8 +1,7 @@
 import axios from 'axios';
 
 // Base URL of the Flask server (ensure it matches your backend's running address)
-// Use relative URL to leverage Vercel's proxy rewrite
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL || 'https://reedse.pythonanywhere.com';
 
 // Add a console log to show the API URL
 console.log('API URL:', API_URL);
