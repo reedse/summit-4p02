@@ -8,11 +8,13 @@ console.log('API URL:', API_URL);
 
 // Create an Axios instance with default configurations
 const api = axios.create({
-  baseURL: API_URL, // Set the base URL for all API requests
+  baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json', // Specify that we're sending JSON data
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
   },
-  withCredentials: true, // Enable sending cookies with requests
+  withCredentials: true,
 });
 
 // Flag to prevent multiple redirects
@@ -21,10 +23,21 @@ let isRedirecting = false;
 // Add request interceptor to add token to requests
 api.interceptors.request.use(
   (config) => {
+    // Add timestamp to GET requests to prevent caching
+    if (config.method === 'get') {
+      config.params = {
+        ...config.params,
+        _: new Date().getTime()
+      };
+    }
+    
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Log the request for debugging
+    console.log(`Making ${config.method.toUpperCase()} request to:`, config.url);
     return config;
   },
   (error) => {
@@ -34,15 +47,24 @@ api.interceptors.request.use(
 
 // Add response interceptor to handle authentication errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log successful responses for debugging
+    console.log(`Response from ${response.config.url}:`, response.status);
+    return response;
+  },
   (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+
     if (error.response?.status === 401 && !isRedirecting) {
       isRedirecting = true;
-      // Clear authentication data on unauthorized
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       
-      // Only redirect if we're not already on the login page
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
       }
